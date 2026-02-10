@@ -207,6 +207,8 @@ WHITENOISE_AUTOREFRESH = DEBUG
 # ----------------------------
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    "https://scopstrade.vercel.app",
+    "https://scopstrade.com",
 ]
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
