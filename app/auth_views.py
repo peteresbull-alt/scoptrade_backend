@@ -53,10 +53,15 @@ def set_auth_cookie(response, token_key):
 
 def delete_auth_cookie(response):
     """Helper to delete the auth cookie from a response."""
+    secure = not settings.DEBUG
     samesite = 'Lax' if settings.DEBUG else 'None'
-    response.delete_cookie(
+    response.set_cookie(
         key='access_token',
+        value='',
+        httponly=True,
+        secure=secure,
         samesite=samesite,
+        max_age=0,
     )
     return response
 
