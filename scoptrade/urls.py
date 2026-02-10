@@ -3,7 +3,7 @@ from django.urls import path
 
 from django.conf import settings
 from django.conf.urls.static import static
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 admin.site.site_header = "ScopTrade Administration"
 admin.site.site_title = "ScopTrade Admin Portal"
@@ -28,6 +28,7 @@ from app.auth_views import (
     reset_password,
     validate_reset_token,
 )
+
 from app.views import (
     get_deposit_options,
     create_deposit,
@@ -38,6 +39,7 @@ from app.views import (
     get_withdrawal_history,
     get_transaction_history,
 )
+
 from app.copy_trading_views import (
     list_traders,
     trader_detail,
@@ -47,12 +49,14 @@ from app.copy_trading_views import (
     user_following_traders,
     user_trade_history,
 )
+
 from app.referral_views import (
     referral_info,
     referral_list,
     generate_referral_code,
     validate_referral_code,
 )
+
 from app.notification_views import (
     list_notifications,
     mark_notification_read,
@@ -89,8 +93,29 @@ from app.settings_views import (
     update_payment_method,
 )
 
+
+"""
+Home view
+
+Redirects to the admin page
+"""
+def home(request):
+    """
+    Redirects to the admin page
+
+    :param request: The request object
+    :return: A redirect response to the admin page
+    """
+    return redirect("/admin")
+
+
+
 urlpatterns = [
+    # Admin
     path('admin/', admin.site.urls),
+
+    # Home
+    path("", home, name='home'),
 
     # Auth
     path('api/auth/register/', register_user_with_verification, name='register'),
