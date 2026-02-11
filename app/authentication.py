@@ -13,4 +13,9 @@ class CookieTokenAuthentication(TokenAuthentication):
         if not token:
             return None
 
-        return self.authenticate_credentials(token)
+        try:
+            return self.authenticate_credentials(token)
+        except AuthenticationFailed:
+            # Invalid/expired token — return None so AllowAny views
+            # (login, register) can still proceed unauthenticated
+            return None
