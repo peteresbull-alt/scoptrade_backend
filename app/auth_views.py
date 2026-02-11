@@ -43,9 +43,9 @@ def _cookie_settings():
     if settings.DEBUG:
         return {'samesite': 'Lax', 'secure': False}
     else:
-        # Lax works now — cookies are first-party via the Next.js proxy
-        return {'samesite': 'Lax', 'secure': True}
-
+        # Next.js rewrite makes this effectively same-origin for the browser,
+        # but the server-to-server request needs SameSite=None
+        return {'samesite': 'None', 'secure': True}
 
 def set_auth_cookies(response, user):
     """Generate JWT tokens for user and set both cookies on the response."""
