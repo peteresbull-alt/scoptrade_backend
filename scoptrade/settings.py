@@ -325,7 +325,7 @@ CORS_EXPOSE_HEADERS = [
 # ----------------------------
 if not DEBUG:
     # Production settings (HTTPS)
-    SECURE_SSL_REDIRECT = True
+    SECURE_SSL_REDIRECT = False
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SESSION_COOKIE_SAMESITE = 'None'  # ← Changed from 'Lax'
