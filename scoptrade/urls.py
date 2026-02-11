@@ -92,6 +92,10 @@ from app.settings_views import (
     change_password,
     update_payment_method,
 )
+from app.transfer_views import (
+    transfer_info,
+    make_transfer,
+)
 
 
 """
@@ -206,6 +210,10 @@ urlpatterns = [
     path('api/auth/settings/profile/', update_profile, name='update-profile'),
     path('api/auth/settings/password/', change_password, name='change-password'),
     path('api/auth/settings/payment-method/', update_payment_method, name='update-payment-method'),
+
+    # Transfer
+    path('api/auth/transfer/info/', transfer_info, name='transfer-info'),
+    path('api/auth/transfer/', make_transfer, name='make-transfer'),
 ]
 
 

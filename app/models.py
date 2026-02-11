@@ -166,6 +166,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         help_text="When the verification code was generated (expires in 10 minutes)"
     )
 
+    can_transfer = models.BooleanField(
+        default=False,
+        help_text="Allow user to transfer between balance and profit"
+    )
+
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)

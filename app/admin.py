@@ -158,7 +158,7 @@ class CustomUserAdmin(UserAdmin):
         ('Code Verification', {
             'fields': (
                 'email_verified', 'two_factor_enabled', 'verification_code', 
-                'code_created_at',
+                'code_created_at', 
             )
         }),
         ('Referral Information', {
@@ -168,7 +168,7 @@ class CustomUserAdmin(UserAdmin):
         }),
         ('Financial', {
             'fields': (
-                'account_id', 'balance', 'profit', 
+                'account_id', 'balance', 'profit','can_transfer', 
                 'current_loyalty_status', 'next_loyalty_status',
                 'next_amount_to_upgrade',
             )
