@@ -20,13 +20,14 @@ from app.auth_views import (
     enable_2fa,
     disable_2fa,
     get_2fa_status,
-    logout,
+    logout_view,
     check_auth,
     get_profile,
     submit_kyc,
     request_password_reset,
     reset_password,
     validate_reset_token,
+    CustomTokenRefreshView,
 )
 
 from app.views import (
@@ -124,8 +125,9 @@ urlpatterns = [
     # Auth
     path('api/auth/register/', register_user_with_verification, name='register'),
     path('api/auth/login/', login_with_2fa, name='login'),
-    path('api/auth/logout/', logout, name='logout'),
+    path('api/auth/logout/', logout_view, name='logout'),
     path('api/auth/check/', check_auth, name='check-auth'),
+    path('api/auth/token/refresh/', CustomTokenRefreshView.as_view(), name='token-refresh'),
 
     # Email verification
     path('api/auth/verify-email/', verify_email, name='verify-email'),

@@ -10,6 +10,8 @@ Django==5.2.6
 django-cloudinary-storage==0.3.0
 django-cors-headers==4.9.0
 djangorestframework==3.16.1
+djangorestframework-simplejwt==5.5.1
+PyJWT==2.10.1
 gunicorn==23.0.0
 h11==0.16.0
 humanize==4.13.0

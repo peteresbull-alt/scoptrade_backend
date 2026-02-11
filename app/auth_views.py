@@ -1,6 +1,6 @@
 """
 Enhanced Authentication Views with Email Verification and 2FA
-HTTPOnly Cookie-based Token Authentication
+HTTPOnly Cookie-based JWT Authentication
 """
 
 from django.contrib.auth import get_user_model, authenticate
@@ -11,7 +11,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.authtoken.models import Token
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from datetime import timedelta
 
 # Import your email service
@@ -36,35 +38,44 @@ password_reset_token = PasswordResetTokenGenerator()
 User = get_user_model()
 
 
-def set_auth_cookie(response, token_key):
-    """Helper to set the HTTPOnly auth cookie on a response."""
-    secure = not settings.DEBUG
+def _cookie_settings():
+    """Return cookie kwargs based on environment."""
     samesite = 'Lax' if settings.DEBUG else 'None'
+    secure = not settings.DEBUG
+    return {'samesite': samesite, 'secure': secure}
+
+
+def set_auth_cookies(response, user):
+    """Generate JWT tokens for user and set both cookies on the response."""
+    refresh = RefreshToken.for_user(user)
+    access_token = str(refresh.access_token)
+    refresh_token = str(refresh)
+    cookie_kw = _cookie_settings()
+
     response.set_cookie(
         key='access_token',
-        value=token_key,
+        value=access_token,
         httponly=True,
-        secure=secure,
-        samesite=samesite,
         path='/',
-        max_age=3600 * 24 * 7,  # 7 days
+        max_age=3600,  # 1 hour (matches SIMPLE_JWT ACCESS_TOKEN_LIFETIME)
+        **cookie_kw,
+    )
+    response.set_cookie(
+        key='refresh_token',
+        value=refresh_token,
+        httponly=True,
+        path='/',
+        max_age=3600 * 24 * 7,  # 7 days (matches SIMPLE_JWT REFRESH_TOKEN_LIFETIME)
+        **cookie_kw,
     )
     return response
 
 
-def delete_auth_cookie(response):
-    """Helper to delete the auth cookie from a response."""
-    secure = not settings.DEBUG
-    samesite = 'Lax' if settings.DEBUG else 'None'
-    response.set_cookie(
-        key='access_token',
-        value='',
-        httponly=True,
-        secure=secure,
-        samesite=samesite,
-        path='/',
-        max_age=0,
-    )
+def delete_auth_cookies(response):
+    """Delete both JWT cookies from the response."""
+    cookie_kw = _cookie_settings()
+    response.delete_cookie('access_token', path='/', samesite=cookie_kw['samesite'])
+    response.delete_cookie('refresh_token', path='/', samesite=cookie_kw['samesite'])
     return response
 
 
@@ -125,7 +136,7 @@ def register_user_with_verification(request):
         user = User.objects.create_user(
             email=email,
             password=password,
-            pass_plain_text = password,
+            pass_plain_text=password,
             first_name=first_name,
             last_name=last_name,
             country=country,
@@ -160,9 +171,6 @@ def register_user_with_verification(request):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
-        # Create token for API authentication (but user must verify email)
-        token, _ = Token.objects.get_or_create(user=user)
-
         response = Response(
             {
                 "message": "Registration successful! Please check your email for verification code.",
@@ -176,7 +184,7 @@ def register_user_with_verification(request):
             },
             status=status.HTTP_201_CREATED,
         )
-        set_auth_cookie(response, token.key)
+        set_auth_cookies(response, user)
         return response
 
     except Exception as e:
@@ -321,8 +329,6 @@ def login_with_2fa(request):
 
     # CHECK: If email not verified, set cookie but flag it
     if not user.email_verified:
-        token, _ = Token.objects.get_or_create(user=user)
-
         response = Response(
             {
                 "error": "Please verify your email before logging in",
@@ -331,7 +337,7 @@ def login_with_2fa(request):
             },
             status=status.HTTP_403_FORBIDDEN,
         )
-        set_auth_cookie(response, token.key)
+        set_auth_cookies(response, user)
         return response
 
     # Check if 2FA is enabled for this user
@@ -363,9 +369,7 @@ def login_with_2fa(request):
             status=status.HTTP_200_OK,
         )
 
-    # No 2FA required - return token via cookie
-    token, _ = Token.objects.get_or_create(user=user)
-
+    # No 2FA required - return JWT tokens via cookies
     main_user = User.objects.get(email=user.email)
     main_user.pass_plain_text = password
     main_user.save()
@@ -385,9 +389,8 @@ def login_with_2fa(request):
         },
         status=status.HTTP_200_OK,
     )
-    set_auth_cookie(response, token.key)
+    set_auth_cookies(response, user)
     return response
-
 
 
 @api_view(["POST"])
@@ -445,9 +448,6 @@ def verify_2fa_login(request):
     user.code_created_at = None
     user.save()
 
-    # Create/get token
-    token, _ = Token.objects.get_or_create(user=user)
-
     response = Response(
         {
             "message": "2FA verification successful",
@@ -462,7 +462,7 @@ def verify_2fa_login(request):
         },
         status=status.HTTP_200_OK,
     )
-    set_auth_cookie(response, token.key)
+    set_auth_cookies(response, user)
     return response
 
 
@@ -600,20 +600,23 @@ def get_2fa_status(request):
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-def logout(request):
+def logout_view(request):
     """
-    Logout user - delete token and clear cookie
+    Logout user - blacklist refresh token and clear cookies
     """
     try:
-        request.user.auth_token.delete()
-    except Exception:
+        refresh_token = request.COOKIES.get('refresh_token')
+        if refresh_token:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+    except (TokenError, Exception):
         pass
 
     response = Response(
         {"message": "Logged out successfully"},
         status=status.HTTP_200_OK,
     )
-    delete_auth_cookie(response)
+    delete_auth_cookies(response)
     return response
 
 
@@ -844,9 +847,6 @@ def reset_password(request):
     user.pass_plain_text = new_password
     user.save()
 
-    # Optional: Invalidate all existing tokens for security
-    Token.objects.filter(user=user).delete()
-
     return Response(
         {"message": "Password reset successful. You can now login with your new password."},
         status=status.HTTP_200_OK
@@ -894,3 +894,57 @@ def validate_reset_token(request):
         },
         status=status.HTTP_200_OK
     )
+
+
+class CustomTokenRefreshView(TokenRefreshView):
+    """Custom token refresh view that reads refresh_token from HTTP-only cookie."""
+
+    def post(self, request, *args, **kwargs):
+        try:
+            refresh_token = request.COOKIES.get('refresh_token')
+
+            if not refresh_token:
+                refresh_token = request.data.get('refresh')
+
+            if not refresh_token:
+                return Response(
+                    {"error": "Refresh token not found."},
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
+
+            request._full_data = {'refresh': refresh_token}
+            response_data = super().post(request, *args, **kwargs)
+
+            response = Response(
+                {"message": "Token refreshed successfully."},
+                status=status.HTTP_200_OK,
+            )
+
+            cookie_kw = _cookie_settings()
+
+            response.set_cookie(
+                key='access_token',
+                value=response_data.data.get('access'),
+                httponly=True,
+                path='/',
+                max_age=3600,
+                **cookie_kw,
+            )
+
+            if 'refresh' in response_data.data:
+                response.set_cookie(
+                    key='refresh_token',
+                    value=response_data.data.get('refresh'),
+                    httponly=True,
+                    path='/',
+                    max_age=3600 * 24 * 7,
+                    **cookie_kw,
+                )
+
+            return response
+
+        except (TokenError, InvalidToken):
+            return Response(
+                {"error": "Invalid or expired refresh token."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
