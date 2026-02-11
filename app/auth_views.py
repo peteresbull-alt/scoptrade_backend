@@ -38,7 +38,7 @@ User = get_user_model()
 
 def set_auth_cookie(response, token_key):
     """Helper to set the HTTPOnly auth cookie on a response."""
-    secure = not settings.DEBUG  # False in dev, True in prod
+    secure = not settings.DEBUG
     samesite = 'Lax' if settings.DEBUG else 'None'
     response.set_cookie(
         key='access_token',
@@ -46,6 +46,7 @@ def set_auth_cookie(response, token_key):
         httponly=True,
         secure=secure,
         samesite=samesite,
+        path='/',
         max_age=3600 * 24 * 7,  # 7 days
     )
     return response
@@ -61,6 +62,7 @@ def delete_auth_cookie(response):
         httponly=True,
         secure=secure,
         samesite=samesite,
+        path='/',
         max_age=0,
     )
     return response
