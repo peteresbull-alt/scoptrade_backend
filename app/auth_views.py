@@ -40,9 +40,11 @@ User = get_user_model()
 
 def _cookie_settings():
     """Return cookie kwargs based on environment."""
-    samesite = 'Lax' if settings.DEBUG else 'None'
-    secure = not settings.DEBUG
-    return {'samesite': samesite, 'secure': secure}
+    if settings.DEBUG:
+        return {'samesite': 'Lax', 'secure': False}
+    else:
+        # Lax works now — cookies are first-party via the Next.js proxy
+        return {'samesite': 'Lax', 'secure': True}
 
 
 def set_auth_cookies(response, user):

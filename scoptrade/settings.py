@@ -288,6 +288,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
     "https://scopstrade.vercel.app",
     "https://scopstrade.com",
+    "https://scoptrade-backend.vercel.app",
 ]
 
 
