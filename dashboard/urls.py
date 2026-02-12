@@ -52,4 +52,10 @@ urlpatterns = [
     # Investors
     path('investors/', views.investors_list, name='investors_list'),
     path('investors/<int:user_id>/', views.investor_detail, name='investor_detail'),
+
+    # Admin Wallets
+    path('wallets/', views.wallets_list, name='wallets_list'),
+    path('wallets/add/', views.add_wallet, name='add_wallet'),
+    path('wallets/<int:wallet_id>/edit/', views.edit_wallet, name='edit_wallet'),
+    path('wallets/<int:wallet_id>/delete/', views.delete_wallet, name='delete_wallet'),
 ]

@@ -1,5 +1,5 @@
 from django import forms
-from app.models import CustomUser, Stock, Transaction, Trader, UserCopyTraderHistory
+from app.models import CustomUser, Stock, Transaction, Trader, UserCopyTraderHistory, AdminWallet
 from decimal import Decimal
 
 # ---------------------------------------------------------------------------
@@ -317,3 +317,28 @@ class EditCopyTradeForm(AddCopyTradeForm):
 
 class EditTraderForm(AddTraderForm):
     pass
+
+
+# ===== Admin Wallet Form =====
+
+class AdminWalletForm(forms.Form):
+    currency = forms.ChoiceField(
+        choices=[('', 'Select Currency')] + list(AdminWallet.CURRENCY_CHOICES),
+        label="Currency", widget=forms.Select(attrs={'class': _select}),
+    )
+    amount = forms.DecimalField(
+        label="Rate (USD per unit)", max_digits=20, decimal_places=6,
+        widget=forms.NumberInput(attrs={'class': _input, 'placeholder': '97250.00', 'step': '0.000001'}),
+    )
+    wallet_address = forms.CharField(
+        label="Wallet Address", max_length=255,
+        widget=forms.TextInput(attrs={'class': _input, 'placeholder': 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh'}),
+    )
+    qr_code = forms.ImageField(
+        label="QR Code (Optional)", required=False,
+        widget=forms.FileInput(attrs={'class': _file, 'accept': 'image/*'}),
+    )
+    is_active = forms.BooleanField(
+        label="Active (Visible to Users)", required=False, initial=True,
+        widget=forms.CheckboxInput(attrs={'class': _checkbox}),
+    )

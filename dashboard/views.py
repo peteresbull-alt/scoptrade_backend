@@ -16,6 +16,7 @@ from .forms import (
     AddTradeForm, AddEarningsForm, ApproveDepositForm,
     ApproveWithdrawalForm, ApproveKYCForm, AddCopyTradeForm,
     EditCopyTradeForm, AddTraderForm, EditTraderForm, EditDepositForm,
+    AdminWalletForm,
 )
 from .decorators import admin_required
 
@@ -820,3 +821,73 @@ def investor_detail(request, user_id):
         'total_completed_amount': completed.aggregate(t=Sum('amount'))['t'] or Decimal('0.00'),
         'total_pending_amount': pending.aggregate(t=Sum('amount'))['t'] or Decimal('0.00'),
     })
+
+
+# ---------------------------------------------------------------------------
+# Admin Wallets
+# ---------------------------------------------------------------------------
+
+@admin_required
+def wallets_list(request):
+    wallets = AdminWallet.objects.all().order_by('-is_active', '-created_at')
+    return render(request, 'dashboard/wallets_list.html', {'wallets': wallets})
+
+
+@admin_required
+def add_wallet(request):
+    if request.method == 'POST':
+        form = AdminWalletForm(request.POST, request.FILES)
+        if form.is_valid():
+            d = form.cleaned_data
+            if AdminWallet.objects.filter(currency=d['currency']).exists():
+                messages.error(request, f'A wallet for {d["currency"]} already exists. Edit it instead.')
+            else:
+                AdminWallet.objects.create(
+                    currency=d['currency'], amount=d['amount'],
+                    wallet_address=d['wallet_address'],
+                    qr_code=d.get('qr_code'), is_active=d.get('is_active', True),
+                )
+                messages.success(request, f'Wallet for {d["currency"]} created.')
+                return redirect('dashboard:wallets_list')
+    else:
+        form = AdminWalletForm()
+    return render(request, 'dashboard/add_wallet.html', {'form': form})
+
+
+@admin_required
+def edit_wallet(request, wallet_id):
+    wallet = get_object_or_404(AdminWallet, id=wallet_id)
+    if request.method == 'POST':
+        form = AdminWalletForm(request.POST, request.FILES)
+        if form.is_valid():
+            d = form.cleaned_data
+            # Check uniqueness if currency changed
+            if d['currency'] != wallet.currency and AdminWallet.objects.filter(currency=d['currency']).exists():
+                messages.error(request, f'A wallet for {d["currency"]} already exists.')
+            else:
+                wallet.currency = d['currency']
+                wallet.amount = d['amount']
+                wallet.wallet_address = d['wallet_address']
+                wallet.is_active = d.get('is_active', True)
+                if d.get('qr_code'):
+                    wallet.qr_code = d['qr_code']
+                wallet.save()
+                messages.success(request, f'Wallet for {wallet.get_currency_display()} updated.')
+                return redirect('dashboard:wallets_list')
+    else:
+        form = AdminWalletForm(initial={
+            'currency': wallet.currency, 'amount': wallet.amount,
+            'wallet_address': wallet.wallet_address, 'is_active': wallet.is_active,
+        })
+    return render(request, 'dashboard/edit_wallet.html', {'form': form, 'wallet': wallet})
+
+
+@admin_required
+def delete_wallet(request, wallet_id):
+    wallet = get_object_or_404(AdminWallet, id=wallet_id)
+    if request.method == 'POST':
+        currency_name = wallet.get_currency_display()
+        wallet.delete()
+        messages.success(request, f'Wallet for {currency_name} deleted.')
+        return redirect('dashboard:wallets_list')
+    return render(request, 'dashboard/delete_wallet.html', {'wallet': wallet})
