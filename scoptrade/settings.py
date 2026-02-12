@@ -88,6 +88,7 @@ INSTALLED_APPS = [
     "cloudinary_storage",
 
     'app',
+    'dashboard',
 ]
 
 AUTH_USER_MODEL = 'app.CustomUser'
@@ -150,7 +151,7 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,
     'UPDATE_LAST_LOGIN': True,
     'ALGORITHM': 'HS256',
-    'SIGNING_KEY': config('SECRET_KEY'),
+    'SIGNING_KEY': SECRET_KEY,
     'VERIFYING_KEY': None,
     'AUDIENCE': None,
     'ISSUER': None,

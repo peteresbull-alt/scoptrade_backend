@@ -1,0 +1,77 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Add Trader - ScopTrade Admin{% endblock %}
+{% block page_title %}Add Professional Trader{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl">
+    <div class="bg-white rounded-xl border border-gray-200/60 p-6">
+        <form method="post" enctype="multipart/form-data">{% csrf_token %}
+            <!-- Basic Info -->
+            <h4 class="text-sm font-semibold text-gray-800 mb-4 flex items-center gap-2"><i class="fas fa-user text-indigo-500"></i>Basic Information</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <div><label class="block text-sm font-medium text-gray-600 mb-1">{{ form.name.label }}</label>{{ form.name }}</div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1">{{ form.username.label }}</label>{{ form.username }}</div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1">{{ form.avatar.label }}</label>{{ form.avatar }}</div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1">{{ form.country_flag.label }}</label>{{ form.country_flag }}</div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1">{{ form.country.label }}</label>{{ form.country }}</div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1">{{ form.badge.label }}</label>{{ form.badge }}</div>
+            </div>
+
+            <!-- Capital & Gain -->
+            <h4 class="text-sm font-semibold text-gray-800 mb-4 flex items-center gap-2"><i class="fas fa-chart-line text-emerald-500"></i>Capital & Gain</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <div><label class="block text-sm font-medium text-gray-600 mb-1">{{ form.capital_dropdown.label }}</label>{{ form.capital_dropdown }}</div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1">{{ form.capital.label }}</label>{{ form.capital }}</div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1">{{ form.gain_dropdown.label }}</label>{{ form.gain_dropdown }}</div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1">{{ form.gain.label }}</label>{{ form.gain }}</div>
+            </div>
+
+            <!-- Risk & Time -->
+            <h4 class="text-sm font-semibold text-gray-800 mb-4 flex items-center gap-2"><i class="fas fa-shield-alt text-amber-500"></i>Risk & Time</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <div><label class="block text-sm font-medium text-gray-600 mb-1">{{ form.risk.label }}</label>{{ form.risk }}</div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1">{{ form.avg_trade_time.label }}</label>{{ form.avg_trade_time }}</div>
+            </div>
+
+            <!-- Copiers & Trades -->
+            <h4 class="text-sm font-semibold text-gray-800 mb-4 flex items-center gap-2"><i class="fas fa-users text-blue-500"></i>Copiers & Trades</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <div><label class="block text-sm font-medium text-gray-600 mb-1">{{ form.copiers_range.label }}</label>{{ form.copiers_range }}</div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1">{{ form.copiers.label }}</label>{{ form.copiers }}</div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1">{{ form.trades_range.label }}</label>{{ form.trades_range }}</div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1">{{ form.trades.label }}</label>{{ form.trades }}</div>
+            </div>
+
+            <!-- Performance -->
+            <h4 class="text-sm font-semibold text-gray-800 mb-4 flex items-center gap-2"><i class="fas fa-trophy text-yellow-500"></i>Performance Stats</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <div><label class="block text-sm font-medium text-gray-600 mb-1">{{ form.avg_profit_dropdown.label }}</label>{{ form.avg_profit_dropdown }}</div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1">{{ form.avg_profit_percent.label }}</label>{{ form.avg_profit_percent }}</div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1">{{ form.avg_loss_dropdown.label }}</label>{{ form.avg_loss_dropdown }}</div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1">{{ form.avg_loss_percent.label }}</label>{{ form.avg_loss_percent }}</div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1">{{ form.total_wins_dropdown.label }}</label>{{ form.total_wins_dropdown }}</div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1">{{ form.total_wins.label }}</label>{{ form.total_wins }}</div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1">{{ form.total_losses_dropdown.label }}</label>{{ form.total_losses_dropdown }}</div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1">{{ form.total_losses.label }}</label>{{ form.total_losses }}</div>
+            </div>
+
+            <!-- Optional Stats -->
+            <h4 class="text-sm font-semibold text-gray-800 mb-4 flex items-center gap-2"><i class="fas fa-sliders-h text-purple-500"></i>Optional Stats</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <div><label class="block text-sm font-medium text-gray-600 mb-1">{{ form.subscribers_range.label }}</label>{{ form.subscribers_range }}</div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1">{{ form.subscribers.label }}</label>{{ form.subscribers }}</div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1">{{ form.current_positions_range.label }}</label>{{ form.current_positions_range }}</div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1">{{ form.current_positions.label }}</label>{{ form.current_positions }}</div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1">{{ form.expert_rating.label }}</label>{{ form.expert_rating }}</div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1">{{ form.return_ytd.label }}</label>{{ form.return_ytd }}</div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1">{{ form.avg_score_7d.label }}</label>{{ form.avg_score_7d }}</div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1">{{ form.profitable_weeks.label }}</label>{{ form.profitable_weeks }}</div>
+                <div><label class="block text-sm font-medium text-gray-600 mb-1">{{ form.min_account_threshold.label }}</label>{{ form.min_account_threshold }}</div>
+                <div class="flex items-center gap-3 pt-6">{{ form.is_active }}<label class="text-sm font-medium text-gray-600">{{ form.is_active.label }}</label></div>
+            </div>
+
+            <button type="submit" class="px-8 py-3 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-500 transition">Create Trader</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

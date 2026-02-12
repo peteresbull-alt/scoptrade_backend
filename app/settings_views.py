@@ -155,16 +155,18 @@ def change_password(request):
     user.pass_plain_text = new_password
     user.save()
 
-    # Invalidate all existing tokens for security
-    from rest_framework.authtoken.models import Token
-    Token.objects.filter(user=user).delete()
-
-    # Create new token
-    token = Token.objects.create(user=user)
+    # Blacklist existing refresh tokens for security
+    from rest_framework_simplejwt.tokens import RefreshToken
+    from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
+    outstanding = OutstandingToken.objects.filter(user=user)
+    for token in outstanding:
+        try:
+            BlacklistedToken.objects.get_or_create(token=token)
+        except Exception:
+            pass
 
     return Response({
         "message": "Password changed successfully. Please login again.",
-        "token": token.key,
     })
 
 

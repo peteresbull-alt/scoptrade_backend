@@ -6,7 +6,6 @@ from django.utils import timezone
 from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from rest_framework.authtoken.models import Token
 from decimal import Decimal
 
 from django.db.models.signals import pre_save
@@ -216,9 +215,6 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
     Auto-create auth token and generate unique IDs for new users
     """
     if created:
-        # Create auth token
-        Token.objects.create(user=instance)
-
         # Track if we need to save
         fields_to_update = []
 

@@ -1,0 +1,55 @@
+from django.urls import path
+from . import views
+
+app_name = 'dashboard'
+
+urlpatterns = [
+    # Auth
+    path('login/', views.admin_login, name='login'),
+    path('logout/', views.admin_logout, name='logout'),
+
+    # Dashboard home
+    path('', views.dashboard, name='dashboard'),
+
+    # Users
+    path('users/', views.users_list, name='users_list'),
+    path('users/<int:user_id>/', views.user_detail, name='user_detail'),
+
+    # KYC
+    path('kyc/', views.kyc_requests, name='kyc_requests'),
+    path('kyc/<int:user_id>/', views.kyc_detail, name='kyc_detail'),
+
+    # Deposits
+    path('deposits/', views.deposits, name='deposits'),
+    path('deposits/<int:transaction_id>/', views.deposit_detail, name='deposit_detail'),
+    path('deposits/<int:transaction_id>/edit/', views.edit_deposit, name='edit_deposit'),
+
+    # Withdrawals
+    path('withdrawals/', views.withdrawals, name='withdrawals'),
+    path('withdrawals/<int:transaction_id>/', views.withdrawal_detail, name='withdrawal_detail'),
+
+    # Transactions
+    path('transactions/', views.transactions, name='transactions'),
+
+    # Trading
+    path('add-trade/', views.add_trade, name='add_trade'),
+    path('add-earnings/', views.add_earnings, name='add_earnings'),
+    path('api/assets-by-type/', views.get_assets_by_type, name='get_assets_by_type'),
+
+    # Copy Trading
+    path('copy-trades/', views.copy_trades_list, name='copy_trades_list'),
+    path('copy-trades/add/', views.add_copy_trade, name='add_copy_trade'),
+    path('copy-trades/<int:trade_id>/', views.copy_trade_detail, name='copy_trade_detail'),
+    path('copy-trades/<int:trade_id>/edit/', views.edit_copy_trade, name='edit_copy_trade'),
+    path('copy-trades/<int:trade_id>/delete/', views.delete_copy_trade, name='delete_copy_trade'),
+
+    # Traders
+    path('traders/', views.traders_list, name='traders_list'),
+    path('traders/add/', views.add_trader, name='add_trader'),
+    path('traders/<int:trader_id>/', views.trader_detail, name='trader_detail'),
+    path('traders/<int:trader_id>/edit/', views.edit_trader, name='edit_trader'),
+
+    # Investors
+    path('investors/', views.investors_list, name='investors_list'),
+    path('investors/<int:user_id>/', views.investor_detail, name='investor_detail'),
+]
