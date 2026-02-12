@@ -13,6 +13,8 @@ class Command(BaseCommand):
             help='Clear all existing traders before creating new ones',
         )
 
+        
+
     def handle(self, *args, **options):
         if options['clear']:
             deleted_count = Trader.objects.all().delete()[0]
