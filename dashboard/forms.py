@@ -207,7 +207,6 @@ class AddTraderForm(forms.Form):
     name = forms.CharField(label="Trader Name", max_length=150, widget=forms.TextInput(attrs={'class': _input, 'placeholder': 'Kristijan'}))
     username = forms.CharField(label="Username", max_length=100, widget=forms.TextInput(attrs={'class': _input, 'placeholder': '@kristijan'}), help_text="Must be unique")
     avatar = forms.ImageField(label="Avatar", required=False, widget=forms.FileInput(attrs={'class': _file, 'accept': 'image/*'}))
-    country_flag = forms.ImageField(label="Country Flag", required=False, widget=forms.FileInput(attrs={'class': _file, 'accept': 'image/*'}))
 
     COUNTRY_CHOICES = [
         ('', 'Select Country'),

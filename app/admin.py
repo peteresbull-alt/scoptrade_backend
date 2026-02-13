@@ -652,6 +652,8 @@ class TraderAdmin(admin.ModelAdmin):
         'badge',
         'is_active',
         'country',
+        'category',
+        'trend_direction',
         'created_at'
     ]
     
@@ -670,7 +672,6 @@ class TraderAdmin(admin.ModelAdmin):
         'created_at',
         'updated_at',
         'avatar_preview',
-        'flag_preview'
     ]
     
     fieldsets = (
@@ -680,15 +681,23 @@ class TraderAdmin(admin.ModelAdmin):
                 'username',
                 'country',
                 'badge',
+                'category',
                 'is_active'
+            )
+        }),
+        ('Profile & Display', {
+            'fields': (
+                'bio',
+                'trend_direction',
+                'tags',
+                'trading_days',
+                'followers',
             )
         }),
         ('Images', {
             'fields': (
                 'avatar',
                 'avatar_preview',
-                'country_flag',
-                'flag_preview'
             )
         }),
         ('Trading Statistics', {
@@ -714,7 +723,14 @@ class TraderAdmin(admin.ModelAdmin):
                 'return_ytd',
                 'return_2y',
                 'avg_score_7d',
-                'profitable_weeks'
+                'profitable_weeks',
+                'max_drawdown',
+            )
+        }),
+        ('Copier Statistics', {
+            'fields': (
+                'cumulative_earnings_copiers',
+                'cumulative_copiers',
             )
         }),
         ('Wins and Losses', {
@@ -730,14 +746,13 @@ class TraderAdmin(admin.ModelAdmin):
                 'avg_loss_percent'
             )
         }),
-        # ('JSON Data', {
-        #     'fields': (
-        #         'performance_data',
-        #         'monthly_performance',
-        #         'frequently_traded'
-        #     ),
-        #     'classes': ('collapse',)
-        # }),
+        ('Portfolio & Top Traded (JSON)', {
+            'fields': (
+                'portfolio_breakdown',
+                'top_traded',
+            ),
+            'classes': ('collapse',)
+        }),
         ('Timestamps', {
             'fields': (
                 'created_at',
@@ -765,19 +780,6 @@ class TraderAdmin(admin.ModelAdmin):
                 return "No image available"
         return "No avatar"
     avatar_preview.short_description = 'Avatar Preview'
-    
-    def flag_preview(self, obj):
-        """Display country flag preview"""
-        if obj.country_flag:
-            try:
-                return format_html(
-                    '<img src="{}" style="max-height: 50px; max-width: 80px;" />',
-                    obj.country_flag.url
-                )
-            except:
-                return "No flag available"
-        return "No flag"
-    flag_preview.short_description = 'Flag Preview'
     
     @admin.action(description='Mark selected traders as active')
     def mark_as_active(self, request, queryset):

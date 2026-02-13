@@ -715,7 +715,6 @@ def add_trader(request):
         if form.is_valid():
             data = _build_trader_data(form)
             data['avatar'] = form.cleaned_data.get('avatar')
-            data['country_flag'] = form.cleaned_data.get('country_flag')
             trader = Trader.objects.create(**data)
             messages.success(request, f'Trader "{trader.name}" added successfully!')
             return redirect('dashboard:traders_list')
@@ -751,8 +750,6 @@ def edit_trader(request, trader_id):
                 setattr(trader, key, val)
             if form.cleaned_data.get('avatar'):
                 trader.avatar = form.cleaned_data['avatar']
-            if form.cleaned_data.get('country_flag'):
-                trader.country_flag = form.cleaned_data['country_flag']
             trader.save()
             messages.success(request, f'Trader "{trader.name}" updated successfully!')
             return redirect('dashboard:trader_detail', trader_id=trader.id)

@@ -401,6 +401,83 @@ class Trader(models.Model):
         help_text="Total number of losing trades"
     )
     
+    # Profile & Display
+    bio = models.TextField(
+        blank=True,
+        default="",
+        help_text="Short bio/description of the trader"
+    )
+    followers = models.PositiveIntegerField(
+        default=0,
+        help_text="Number of followers"
+    )
+    trading_days = models.CharField(
+        max_length=50,
+        default="0",
+        help_text="Trading days experience, e.g. '500+', '1200'"
+    )
+    trend_direction = models.CharField(
+        max_length=10,
+        choices=[
+            ('upward', 'Upward'),
+            ('downward', 'Downward'),
+        ],
+        default='upward',
+        help_text="Chart trend direction for earnings display (upward or downward)"
+    )
+    tags = models.JSONField(
+        default=list,
+        blank=True,
+        help_text='Badge tags, e.g. ["Trending Investors", "Rising Stars"]'
+    )
+    category = models.CharField(
+        max_length=50,
+        choices=[
+            ('all', 'All'),
+            ('crypto', 'Crypto'),
+            ('stocks', 'Stocks'),
+            ('healthcare', 'Healthcare'),
+            ('financial', 'Financial Services'),
+            ('options', 'Options'),
+            ('tech', 'Tech'),
+            ('etf', 'ETF'),
+        ],
+        default='all',
+        help_text="Trading category for filtering"
+    )
+
+    # Advanced Stats
+    max_drawdown = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0.00,
+        help_text="Maximum drawdown percentage"
+    )
+    cumulative_earnings_copiers = models.DecimalField(
+        max_digits=15,
+        decimal_places=2,
+        default=0.00,
+        help_text="Cumulative earnings of all copiers"
+    )
+    cumulative_copiers = models.PositiveIntegerField(
+        default=0,
+        help_text="Total cumulative copiers (all time)"
+    )
+
+    # Portfolio breakdown
+    portfolio_breakdown = models.JSONField(
+        default=list,
+        blank=True,
+        help_text='Portfolio allocation, e.g. [{"name": "ETF", "percentage": 25}, {"name": "Crypto", "percentage": 25}, {"name": "Futures", "percentage": 50}]'
+    )
+
+    # Top traded assets with detailed stats
+    top_traded = models.JSONField(
+        default=list,
+        blank=True,
+        help_text='Top traded assets with stats, e.g. [{"name": "Apple Inc", "ticker": "AAPL", "avg_profit": 12.5, "avg_loss": -3.2, "profitable_pct": 78}]'
+    )
+
     # JSON fields for complex data
     performance_data = models.JSONField(
         default=list,
@@ -417,7 +494,7 @@ class Trader(models.Model):
         blank=True,
         help_text="List of frequently traded assets"
     )
-    
+
     # Metadata
     is_active = models.BooleanField(
         default=True,

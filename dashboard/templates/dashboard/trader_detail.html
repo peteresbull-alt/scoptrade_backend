@@ -11,7 +11,6 @@
             <h3 class="font-semibold text-gray-800 text-lg">{{ trader.name }}</h3>
             <p class="text-sm text-gray-400">{{ trader.username }}</p>
             <div class="flex items-center justify-center gap-2 mt-2">
-                {% if trader.country_flag %}<img src="{{ trader.country_flag.url }}" class="w-5 h-4 object-cover rounded-sm">{% endif %}
                 <span class="text-sm text-gray-500">{{ trader.country }}</span>
             </div>
             <span class="inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium capitalize {% if trader.badge == 'gold' %}bg-yellow-50 text-yellow-700{% elif trader.badge == 'silver' %}bg-gray-100 text-gray-600{% else %}bg-orange-50 text-orange-700{% endif %}">{{ trader.badge }}</span>

@@ -9,8 +9,9 @@ from .models import Trader, UserTraderCopy, UserCopyTraderHistory
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def list_traders(request):
-    """List all active traders with optional search"""
+    """List all active traders with optional search and category filter"""
     search = request.GET.get("search", "").strip()
+    category = request.GET.get("category", "").strip().lower()
 
     traders = Trader.objects.filter(is_active=True)
 
@@ -19,18 +20,15 @@ def list_traders(request):
             Q(name__icontains=search) | Q(username__icontains=search)
         )
 
+    if category and category != "all":
+        traders = traders.filter(category=category)
+
     traders_list = []
     for t in traders:
         avatar_url = None
-        country_flag_url = None
         try:
             if t.avatar:
                 avatar_url = t.avatar.url
-        except Exception:
-            pass
-        try:
-            if t.country_flag:
-                country_flag_url = t.country_flag.url
         except Exception:
             pass
 
@@ -39,7 +37,6 @@ def list_traders(request):
             "name": t.name,
             "username": t.username,
             "avatar_url": avatar_url,
-            "country_flag_url": country_flag_url,
             "badge": t.badge,
             "country": t.country,
             "gain": str(t.gain),
@@ -47,6 +44,8 @@ def list_traders(request):
             "trades": t.trades,
             "capital": t.capital,
             "copiers": t.copiers,
+            "trend_direction": t.trend_direction,
+            "category": t.category,
             "is_active": t.is_active,
         })
 
@@ -63,15 +62,9 @@ def trader_detail(request, trader_id):
         return Response({"error": "Trader not found"}, status=status.HTTP_404_NOT_FOUND)
 
     avatar_url = None
-    country_flag_url = None
     try:
         if t.avatar:
             avatar_url = t.avatar.url
-    except Exception:
-        pass
-    try:
-        if t.country_flag:
-            country_flag_url = t.country_flag.url
     except Exception:
         pass
 
@@ -91,7 +84,6 @@ def trader_detail(request, trader_id):
         "name": t.name,
         "username": t.username,
         "avatar_url": avatar_url,
-        "country_flag_url": country_flag_url,
         "badge": t.badge,
         "country": t.country,
         "gain": str(t.gain),
@@ -116,7 +108,18 @@ def trader_detail(request, trader_id):
         "win_rate": t.win_rate,
         "performance_data": t.performance_data,
         "monthly_performance": t.monthly_performance,
-        "frequently_traded": frequently_traded,  # Now from actual UserCopyTraderHistory
+        "frequently_traded": frequently_traded,
+        "bio": t.bio,
+        "followers": t.followers,
+        "trading_days": t.trading_days,
+        "trend_direction": t.trend_direction,
+        "tags": t.tags,
+        "category": t.category,
+        "max_drawdown": str(t.max_drawdown),
+        "cumulative_earnings_copiers": str(t.cumulative_earnings_copiers),
+        "cumulative_copiers": t.cumulative_copiers,
+        "portfolio_breakdown": t.portfolio_breakdown,
+        "top_traded": t.top_traded,
         "is_active": t.is_active,
         "created_at": t.created_at.isoformat() if t.created_at else None,
         "updated_at": t.updated_at.isoformat() if t.updated_at else None,
