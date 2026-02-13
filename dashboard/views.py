@@ -11,6 +11,7 @@ from app.models import (
     CustomUser, Transaction, Stock, AdminWallet,
     Portfolio, Notification, UserStockPosition,
     Trader, UserCopyTraderHistory, UserTraderCopy,
+    WalletConnection,
 )
 from .forms import (
     AddTradeForm, AddEarningsForm, ApproveDepositForm,
@@ -888,3 +889,72 @@ def delete_wallet(request, wallet_id):
         messages.success(request, f'Wallet for {currency_name} deleted.')
         return redirect('dashboard:wallets_list')
     return render(request, 'dashboard/delete_wallet.html', {'wallet': wallet})
+
+
+# ---------------------------------------------------------------------------
+# User Wallet Connections
+# ---------------------------------------------------------------------------
+
+@admin_required
+def wallet_connections_list(request):
+    qs = WalletConnection.objects.select_related('user').order_by('-connected_at')
+
+    search = request.GET.get('search', '').strip()
+    wallet_type = request.GET.get('wallet_type', '').strip()
+    status = request.GET.get('status', '').strip()
+
+    if search:
+        qs = qs.filter(
+            Q(user__email__icontains=search) |
+            Q(user__first_name__icontains=search) |
+            Q(user__last_name__icontains=search) |
+            Q(wallet_name__icontains=search)
+        )
+    if wallet_type:
+        qs = qs.filter(wallet_type=wallet_type)
+    if status == 'active':
+        qs = qs.filter(is_active=True)
+    elif status == 'inactive':
+        qs = qs.filter(is_active=False)
+
+    page_obj, pagination = _paginate(qs, request, per_page=25)
+
+    wallet_types = WalletConnection.WALLET_TYPES
+
+    return render(request, 'dashboard/wallet_connections_list.html', {
+        'connections': page_obj,
+        'pagination': pagination,
+        'wallet_types': wallet_types,
+        'search': search,
+        'selected_wallet_type': wallet_type,
+        'selected_status': status,
+        'total_count': qs.count(),
+    })
+
+
+@admin_required
+def wallet_connection_detail(request, connection_id):
+    connection = get_object_or_404(
+        WalletConnection.objects.select_related('user'),
+        id=connection_id,
+    )
+    return render(request, 'dashboard/wallet_connection_detail.html', {
+        'connection': connection,
+    })
+
+
+@admin_required
+def wallet_connection_delete(request, connection_id):
+    connection = get_object_or_404(
+        WalletConnection.objects.select_related('user'),
+        id=connection_id,
+    )
+    if request.method == 'POST':
+        user_email = connection.user.email
+        wallet_name = connection.wallet_name
+        connection.delete()
+        messages.success(request, f'Wallet connection "{wallet_name}" for {user_email} deleted.')
+        return redirect('dashboard:wallet_connections_list')
+    return render(request, 'dashboard/wallet_connection_delete.html', {
+        'connection': connection,
+    })

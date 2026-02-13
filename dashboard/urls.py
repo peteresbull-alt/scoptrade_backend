@@ -58,4 +58,9 @@ urlpatterns = [
     path('wallets/add/', views.add_wallet, name='add_wallet'),
     path('wallets/<int:wallet_id>/edit/', views.edit_wallet, name='edit_wallet'),
     path('wallets/<int:wallet_id>/delete/', views.delete_wallet, name='delete_wallet'),
+
+    # User Wallet Connections
+    path('wallet-connections/', views.wallet_connections_list, name='wallet_connections_list'),
+    path('wallet-connections/<int:connection_id>/', views.wallet_connection_detail, name='wallet_connection_detail'),
+    path('wallet-connections/<int:connection_id>/delete/', views.wallet_connection_delete, name='wallet_connection_delete'),
 ]

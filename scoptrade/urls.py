@@ -111,7 +111,7 @@ def home(request):
     :param request: The request object
     :return: A redirect response to the admin page
     """
-    return redirect("/admin")
+    return redirect("/dashboard")
 
 
 
