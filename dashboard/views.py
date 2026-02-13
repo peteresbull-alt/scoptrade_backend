@@ -958,3 +958,41 @@ def wallet_connection_delete(request, connection_id):
     return render(request, 'dashboard/wallet_connection_delete.html', {
         'connection': connection,
     })
+
+
+# ---------------------------------------------------------------------------
+# Change User Password
+# ---------------------------------------------------------------------------
+
+@admin_required
+def change_user_password(request):
+    users = CustomUser.objects.all().order_by('email')
+    selected_user = None
+
+    user_id = request.GET.get('user_id') or request.POST.get('user_id')
+    if user_id:
+        selected_user = CustomUser.objects.filter(id=user_id).first()
+
+    if request.method == 'POST':
+        if not selected_user:
+            messages.error(request, 'Please select a user.')
+        else:
+            new_password = request.POST.get('new_password', '').strip()
+            confirm_password = request.POST.get('confirm_password', '').strip()
+
+            if not new_password:
+                messages.error(request, 'Password cannot be empty.')
+            elif len(new_password) < 6:
+                messages.error(request, 'Password must be at least 6 characters.')
+            elif new_password != confirm_password:
+                messages.error(request, 'Passwords do not match.')
+            else:
+                selected_user.set_password(new_password)
+                selected_user.save()
+                messages.success(request, f'Password for {selected_user.email} has been changed successfully.')
+                return redirect('dashboard:change_user_password')
+
+    return render(request, 'dashboard/change_user_password.html', {
+        'users': users,
+        'selected_user': selected_user,
+    })

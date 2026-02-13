@@ -59,6 +59,9 @@ urlpatterns = [
     path('wallets/<int:wallet_id>/edit/', views.edit_wallet, name='edit_wallet'),
     path('wallets/<int:wallet_id>/delete/', views.delete_wallet, name='delete_wallet'),
 
+    # Change User Password
+    path('change-password/', views.change_user_password, name='change_user_password'),
+
     # User Wallet Connections
     path('wallet-connections/', views.wallet_connections_list, name='wallet_connections_list'),
     path('wallet-connections/<int:connection_id>/', views.wallet_connection_detail, name='wallet_connection_detail'),

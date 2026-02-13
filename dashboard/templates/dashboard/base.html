@@ -94,6 +94,9 @@
         <a href="{% url 'dashboard:wallet_connections_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {% if 'wallet_connection' in request.resolver_match.url_name %}bg-indigo-600 text-white{% else %}text-slate-300 hover:bg-slate-800 hover:text-white{% endif %} transition">
             <i class="fas fa-link w-5 text-center"></i>Wallet Connections
         </a>
+        <a href="{% url 'dashboard:change_user_password' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {% if request.resolver_match.url_name == 'change_user_password' %}bg-indigo-600 text-white{% else %}text-slate-300 hover:bg-slate-800 hover:text-white{% endif %} transition">
+            <i class="fas fa-key w-5 text-center"></i>Change User Password
+        </a>
 
         <!-- Trader Management -->
         <p class="px-3 pt-4 text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Trader Mgmt</p>
