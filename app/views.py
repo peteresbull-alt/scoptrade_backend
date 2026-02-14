@@ -12,6 +12,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from .models import AdminWallet, Transaction, PaymentMethod, Notification
+from .email_service import send_admin_payment_intent_notification
 
 
 # ============================================================
@@ -122,6 +123,32 @@ def create_deposit(request):
             "status": transaction.status,
             "created_at": transaction.created_at.isoformat(),
         },
+    })
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def deposit_payment_intent(request):
+    """
+    Notify admin that a user intends to make a deposit.
+    Sends an email so staff can follow up if the deposit is not completed.
+    """
+    user = request.user
+    currency = request.data.get("currency")
+    dollar_amount = request.data.get("dollar_amount")
+    currency_unit = request.data.get("currency_unit", "0")
+
+    if not currency or not dollar_amount:
+        return Response({
+            "success": False,
+            "error": "Currency and amount are required.",
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    send_admin_payment_intent_notification(user, currency, dollar_amount, currency_unit)
+
+    return Response({
+        "success": True,
+        "message": "Payment intent recorded.",
     })
 
 

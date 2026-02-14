@@ -33,6 +33,7 @@ from app.auth_views import (
 from app.views import (
     get_deposit_options,
     create_deposit,
+    deposit_payment_intent,
     get_deposit_history,
     get_withdrawal_profile,
     get_withdrawal_methods,
@@ -155,6 +156,7 @@ urlpatterns = [
     # Deposits
     path('api/auth/deposits/options/', get_deposit_options, name='deposit-options'),
     path('api/auth/deposits/create/', create_deposit, name='deposit-create'),
+    path('api/auth/deposits/payment-intent/', deposit_payment_intent, name='deposit-payment-intent'),
     path('api/auth/deposits/history/', get_deposit_history, name='deposit-history'),
 
     # Withdrawals

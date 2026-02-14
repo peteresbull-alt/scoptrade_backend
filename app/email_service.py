@@ -424,6 +424,116 @@ def is_code_valid(user):
 
 
 # ─────────────────────────────────────────────────────────────
+# Admin: Payment Intent Notification
+# ─────────────────────────────────────────────────────────────
+
+def send_admin_payment_intent_notification(user, currency, dollar_amount, currency_unit):
+    admin_email = settings.ADMIN_NOTIFICATION_EMAIL if hasattr(settings, 'ADMIN_NOTIFICATION_EMAIL') else settings.EMAIL_HOST_USER
+
+    subject = f"Payment Intent — {user.email} — ${dollar_amount}"
+
+    html_content = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            {_base_styles()}
+            .amount-display {{
+                background-color: #eff6ff;
+                border: 1px solid #bfdbfe;
+                border-radius: 6px;
+                padding: 24px;
+                text-align: center;
+                margin: 24px 0;
+            }}
+            .amount-display .amount {{
+                font-size: 32px;
+                font-weight: 700;
+                color: #2563eb;
+            }}
+            .amount-display .label {{
+                font-size: 12px;
+                color: #64748b;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                margin-top: 4px;
+            }}
+            .status-badge {{
+                display: inline-block;
+                padding: 4px 12px;
+                background-color: #eff6ff;
+                color: #1e40af;
+                border-radius: 2px;
+                font-size: 11px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }}
+            .section-title {{
+                font-size: 11px;
+                font-weight: 600;
+                color: #94a3b8;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                margin-bottom: 12px;
+                margin-top: 28px;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="wrapper">
+            {_header_html()}
+
+            <div class="body-content">
+                <div style="margin-bottom: 20px;">
+                    <span class="status-badge">Payment Intent</span>
+                </div>
+
+                <div class="heading">Deposit Intent Received</div>
+
+                <div class="text">A user has indicated intent to deposit funds. They have entered an amount and are proceeding to the payment step. Follow up if no deposit is completed.</div>
+
+                <div class="amount-display">
+                    <div class="amount">${dollar_amount}</div>
+                    <div class="label">{currency_unit} {currency}</div>
+                </div>
+
+                <div class="section-title">Intent Details</div>
+                <table class="detail-table">
+                    <tr><td class="label">Currency</td><td class="value">{currency}</td></tr>
+                    <tr><td class="label">USD Amount</td><td class="value">${dollar_amount}</td></tr>
+                    <tr><td class="label">Crypto Amount</td><td class="value">{currency_unit}</td></tr>
+                    <tr><td class="label">Timestamp</td><td class="value">{timezone.now().strftime('%b %d, %Y at %I:%M %p UTC')}</td></tr>
+                </table>
+
+                <div class="section-title">User Information</div>
+                <table class="detail-table">
+                    <tr><td class="label">Name</td><td class="value">{user.first_name} {user.last_name}</td></tr>
+                    <tr><td class="label">Email</td><td class="value">{user.email}</td></tr>
+                    <tr><td class="label">Account ID</td><td class="value">{user.account_id}</td></tr>
+                    <tr><td class="label">Balance</td><td class="value">${user.balance}</td></tr>
+                    <tr><td class="label">KYC</td><td class="value">{'Verified' if user.is_verified else ('Pending' if user.has_submitted_kyc else 'Not Submitted')}</td></tr>
+                </table>
+
+                <div class="notice">
+                    <p><strong>Note:</strong> This is a payment intent notification, not a confirmed deposit. The user may or may not complete the payment. Staff should follow up if no deposit is received.</p>
+                </div>
+            </div>
+
+            <div class="footer">
+                <div class="footer-text">Admin notification &middot; Payment intent &middot; {timezone.now().strftime('%b %d, %Y at %I:%M %p UTC')}</div>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+
+    return send_email(admin_email, subject, html_content)
+
+
+# ─────────────────────────────────────────────────────────────
 # Admin: Deposit Notification
 # ─────────────────────────────────────────────────────────────
 
